@@ -17,9 +17,9 @@ void spin_lock() {
         "loop:\n\t"
         "mov $0, %%eax\n\t"
         /*YOUR CODE HERE*/
-
-        /****************/
-        "js loop\n\t"
+        "xchg %%eax, %[lock]\n\t"
+        "test %%eax, %%eax\n\t"
+        "jz loop\n\t"
         :
         : [lock] "m" (lock)
         : "eax", "memory"
@@ -32,6 +32,7 @@ void spin_unlock() {
         /*YOUR CODE HERE*/
 
         /****************/
+        "xchg %%eax, %[lock]\n\t"
         :
         : [lock] "m" (lock)
         : "eax", "memory"

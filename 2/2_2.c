@@ -49,9 +49,13 @@ void *thread1(void *arg){
     /*YOUR CODE HERE*/
     for(int i=0; i<matrix_row_x; i++){
         for(int j=0; j<matrix_col_y; j++){
+            int partial_sum = 0;
             for(int k=0; k<matrix_row_y/2; k++){
-
+                partial_sum += x[i][k] * y[k][j];
             }      
+            pthread_spin_lock(&lock);
+            z[i][j] += partial_sum;
+            pthread_spin_unlock(&lock);
         }
     }
     /****************/
@@ -63,9 +67,13 @@ void *thread2(void *arg) {
     /*YOUR CODE HERE*/
     for(int i=0; i<matrix_row_x; i++){
         for(int j=0; j<matrix_col_y; j++){
+            int partial_sum = 0;
             for(int k=matrix_row_y/2; k<matrix_row_y; k++){
-
+                partial_sum += x[i][k] * y[k][j];
             }     
+            pthread_spin_lock(&lock);
+            z[i][j] += partial_sum;
+            pthread_spin_unlock(&lock);
         }
     } 
     /****************/
@@ -85,6 +93,11 @@ int main() {
     for(int i=0; i<matrix_row_x; i++){
         z[i] = malloc(sizeof(int)*matrix_col_y);
     }
+
+    for(int i=0; i<matrix_row_x; i++) {
+        for(int j=0; j<matrix_col_y; j++) z[i][j] = 0;
+    }
+
     fptr1 = fopen("m1.txt", "r");
     fptr2 = fopen("m2.txt", "r");
     fptr3 = fopen("2.txt", "a");
