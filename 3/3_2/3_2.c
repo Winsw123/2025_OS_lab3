@@ -73,6 +73,12 @@ void *thread1(void *arg){
 
     /*YOUR CODE HERE*/
     /* Hint: Write data into proc file.*/
+    printf("%s\n", data);
+    
+    fputs(data, fptr4); 
+    fflush(fptr4);
+    
+    rewind(fptr4);
 
     /****************/ 
 
@@ -97,7 +103,12 @@ void *thread2(void *arg){
     
     /*YOUR CODE HERE*/
     /* Hint: Write data into proc file.*/
+    printf("%s\n", data);
 
+    fputs(data, fptr5);
+    fflush(fptr5);
+
+    rewind(fptr5);
     /****************/   
 
     char buffer[50]; 
@@ -124,8 +135,8 @@ int main(){
     fptr1 = fopen("m1.txt", "r");
     fptr2 = fopen("m2.txt", "r");
     fptr3 = fopen("3_2.txt", "a");
-    fptr4 = fopen("/proc/Mythread_info", "r");
-    fptr5 = fopen("/proc/Mythread_info", "r");
+    fptr4 = fopen("/proc/Mythread_info", "r+");
+    fptr5 = fopen("/proc/Mythread_info", "r+");
 
     pthread_t t1, t2;
     data_processing();

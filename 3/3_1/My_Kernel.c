@@ -4,6 +4,8 @@
 #include <linux/printk.h>
 #include <linux/proc_fs.h>
 #include <asm/current.h>
+#include <linux/uaccess.h>
+#include <linux/sched/signal.h>
 
 #define procfs_name "Mythread_info"
 #define BUFSIZE  1024
@@ -16,9 +18,27 @@ static ssize_t Mywrite(struct file *fileptr, const char __user *ubuf, size_t buf
 
 
 static ssize_t Myread(struct file *fileptr, char __user *ubuf, size_t buffer_len, loff_t *offset){
-    /*Your code here*/
+    struct task_struct *thread;
+    int len = 0;
+    char local_buf[512];
 
-    /****************/
+    // 防止重複讀取，若 offset > 0 則返回 0
+    if (*offset > 0) return 0;
+
+    for_each_thread(current, thread) {
+    	if (thread->pid != thread->tgid) {
+	    if (len < 400) {
+	        len += snprintf(local_buf + len, 512 - len, "PID: %d, TID: %d, Priority: %d, State: %d\n", thread->tgid, thread->pid, thread->prio, thread->__state);
+	    }
+	}
+    }
+
+    if (copy_to_user(ubuf, local_buf, len)) {
+        return -EFAULT;
+    }
+    
+    *offset = len;
+    return len;
 }
 
 static struct proc_ops Myops = {
